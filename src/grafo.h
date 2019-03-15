@@ -40,8 +40,13 @@ grafoP aloca_grafo (void);
 verticeP aloca_vertice (void);
 void processa_linha (char *linha,char *vert1,char *vert2);
 int busca_nomeVert_no_grafo (grafoP g, char * vert);
+
+void busca_vertice_comum (grafoP g1, grafoP g2, double * triadesAberta, double * triadesFechadas);
+
 void printa_grafo (grafoP g);
 void cria_vizinho (grafoP cabeca, char *vert1Linha, char *vert2Linha);
+int verifica_vizinho (grafoP vert1, char * nomeVert);
+// void busca_vertice_comum (grafoP g1, grafoP g2);
 
 
 
