@@ -86,7 +86,7 @@ void printa_grafo (grafoP g){
 
 int busca_nomeVert_no_grafo (grafoP g, char * vert){
   grafoP atual = g;
-  
+
   while (atual){
     if (!strcmp (atual->nomeVert, vert)){
       return 1;
@@ -136,9 +136,7 @@ int destroi_grafo(grafoP g){
   grafoP lixoG = g, atualG = g;
 
   verticeP lixoV = NULL, atualV = NULL;
-
   while (atualG){
-
     atualV = atualG->verticeAdj;
     while (atualV){
       lixoV = atualV;
@@ -149,7 +147,6 @@ int destroi_grafo(grafoP g){
     atualG = atualG->proxVertice;
     free(lixoG);
   }
-
   return 1;
 }
 
@@ -157,35 +154,20 @@ void busca_vertice_comum (grafoP g1, grafoP g2, double * triadesAberta, double *
   verticeP vert1 , vert2;
   vert1 = g1->verticeAdj;
   vert2 = g2->verticeAdj;
-  // double triadesAberta = 0, triadesFechadas = 0, triadesTotal = 0;
-
-  // printf("PASSANDO %s , %s\n\n",g1->nomeVert,g2->nomeVert );
   while (vert1){
-
-
     while (vert2) {
-      // printf("Primario vert1 %s - Secundario %s\n",vert1->nomeVert, vert2->nomeVert );
-
       if (!strcmp(vert1->nomeVert, vert2->nomeVert)){
-        // printf("%s, %s tem em comum %s \n",g1->nomeVert,g2->nomeVert,vert2->nomeVert);
         if (verifica_vizinho (g1,g2->nomeVert)){
           (*triadesFechadas)++;
-          // printf("%s\n","Sao vizinhos" );
         }else {
           (*triadesAberta)++;
-          // printf("%s\n","NAo sao vizinhos" );
-
         }
-
       }
       vert2 = vert2->proximo;
     }
-
     vert2 = g2->verticeAdj;
     vert1 = vert1->proximo;
   }
-  // printf("triadesFechadas %lg - triadesAberta %lg\n", *triadesFechadas, *triadesAberta);
-
 }
 
 int verifica_vizinho (grafoP vert1, char * nomeVert){
@@ -200,30 +182,13 @@ int verifica_vizinho (grafoP vert1, char * nomeVert){
 double coeficiente_agrupamento_grafo(grafoP g){
   grafoP vert1 = NULL, vert2 = NULL;
   double triadesAberta = 0, triadesFechadas = 0, triadesTotal = 0;
-
   vert1 = g;
-
   while (vert1){
-
     vert2 = vert1->proxVertice;
     while (vert2) {
-      // printf("Primario vert1 %s - Secundario %s\n",vert1->nomeVert, vert2->nomeVert );
-      // printf(" vert1 %s\n",vert1->nomeVert );
-      // printf("%s %s\n", );
-      // if (busca_vertice_comum(vert1, vert2)){
       busca_vertice_comum(vert1, vert2, &triadesAberta, &triadesFechadas);
-
-      // if (verifica_vizinho(vert1, vert2->nomeVert)){
-      //   triadesFechadas++;
-      //   // printf("%s, %s formam fechada com %lg\n",vert1->nomeVert,vert2->nomeVert, triadesFechadas);
-      // } else{
-      //   triadesAberta++;
-      //   // printf("fechadas %lg\n", triadesAberta);
-      // }
-      // }
       vert2 = vert2->proxVertice;
     }
-
     vert1 = vert1->proxVertice;
   }
 
@@ -231,11 +196,8 @@ double coeficiente_agrupamento_grafo(grafoP g){
   if ((int)triadesTotal == 0){
     return 0;
   }
-  printf("triadesFechadas %lg - triadesAberta %lg\n", triadesFechadas, triadesAberta);
+  // printf("triadesFechadas %lg - triadesAberta %lg\n", triadesFechadas, triadesAberta);
   return triadesFechadas / triadesTotal;
 }
 
 // grafo escreve_grafo(FILE *output, grafo g);
-//
-//
-//

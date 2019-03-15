@@ -5,51 +5,61 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
+//------------------------------------------------------------------------------
+
+
 typedef struct grafo {
   char nomeVert[1024];
   struct vertice *verticeAdj;
   struct grafo *proxVertice;
 } GrafoS;
 
+//------------------------------------------------------------------------------
+
 typedef struct vertice {
   char nomeVert[1024];
   struct vertice *proximo;
 } VerticeS;
 
-
-
 //------------------------------------------------------------------------------
 // (apontador para) estrutura de dados para representar um grafo
 //
 // o grafo tem um nome, que é uma "string"
-
 typedef struct grafo * grafoP;
 
 //------------------------------------------------------------------------------
 // (apontador para) estrutura de dados para representar um vértice
 //
 // o vértice tem um nome, que é uma "string"
-
 typedef struct vertice *verticeP;
 
 //------------------------------------------------------------------------------
 
 
+//------------------------------------------------------------------------------
 
 grafoP aloca_grafo (void);
+//------------------------------------------------------------------------------
 verticeP aloca_vertice (void);
+//------------------------------------------------------------------------------
+
 void processa_linha (char *linha,char *vert1,char *vert2);
+//------------------------------------------------------------------------------
+
 int busca_nomeVert_no_grafo (grafoP g, char * vert);
+//------------------------------------------------------------------------------
 
 void busca_vertice_comum (grafoP g1, grafoP g2, double * triadesAberta, double * triadesFechadas);
+//------------------------------------------------------------------------------
 
 void printa_grafo (grafoP g);
+//------------------------------------------------------------------------------
+
 void cria_vizinho (grafoP cabeca, char *vert1Linha, char *vert2Linha);
+//------------------------------------------------------------------------------
+
 int verifica_vizinho (grafoP vert1, char * nomeVert);
-// void busca_vertice_comum (grafoP g1, grafoP g2);
-
-
-
 
 //------------------------------------------------------------------------------
 // desaloca toda a memória usada em *g
