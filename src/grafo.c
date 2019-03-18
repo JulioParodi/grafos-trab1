@@ -1,19 +1,31 @@
 #include "grafo.h"
 
-grafoP le_grafo(FILE *input){
-  grafoP cabeca = NULL;
-  grafoP aux = NULL;
+grafo le_grafo(FILE *input){
+  grafo cabeca = NULL;
+  grafo aux = NULL;
   bool first = true;
 
+  // instancia o inicio do grafo
   cabeca = aloca_grafo();
   aux = cabeca;
   char linha[2048], vert1Linha[1024],vert2Linha[1024];
+
+  //Laço para ler linha por linha do arquivo
   fgets (linha,2055,input);
   while (!feof(input)){
+
+    //ignora linha vazia
     if ( strcmp(linha,"\n")) {
+
+      //Separa os vertices contidos na linha
       processa_linha (linha, vert1Linha, vert2Linha);
+
+      // Na primeira interação o vertice deve ser inserido na cabeca, intancia ja criada
       if (first){
         strcpy(cabeca->nomeVert,vert1Linha);
+
+        // Se houver dois vertices na linha, então aloca a estrutura para o segundo vertice
+        // e cria a vizinhança entre eles
         if (strcmp(vert2Linha, "\0")){
           aux = aloca_grafo();
           strcpy(aux->nomeVert,vert2Linha);
@@ -22,18 +34,29 @@ grafoP le_grafo(FILE *input){
           cria_vizinho (cabeca, vert2Linha, vert1Linha);
         }
         first = false;
-      } else {
+      }
+      // Apos a primeira interação , sao instanciados a estrutura para novos vertices
+      // e encadeadas ao final do grafo
+      else {
+
+        // Verifica se o vertice ja pertence ao grafo
         if( !busca_nomeVert_no_grafo (cabeca, vert1Linha)){
           aux->proxVertice = aloca_grafo ();
           strcpy(aux->proxVertice->nomeVert,vert1Linha);
           aux = aux->proxVertice;
         }
+        // Se houver dois vertices na linha, então aloca a estrutura para o segundo vertice
+        // e cria a vizinhança entre eles
         if (strcmp(vert2Linha, "\0")){
+
+          // Verifica se o vertice ja pertence ao grafo
           if( !busca_nomeVert_no_grafo (cabeca, vert2Linha)){
             aux->proxVertice = aloca_grafo ();
             strcpy(aux->proxVertice->nomeVert,vert2Linha);
             aux = aux->proxVertice;
           }
+
+          // Cria a adjacencia entre eles no grafo
           cria_vizinho (cabeca, vert1Linha, vert2Linha);
           cria_vizinho (cabeca, vert2Linha, vert1Linha);
         }
@@ -41,11 +64,42 @@ grafoP le_grafo(FILE *input){
     }
     fgets (linha,2055,input);
   }
+
+  // retorna o inicio do grafo
   return cabeca;
 }
 
-void cria_vizinho (grafoP cabeca, char *vert1Linha, char *vert2Linha){
-  grafoP aux = cabeca;
+
+double coeficiente_agrupamento_grafo(grafo g){
+  grafo vert1 = NULL, vert2 = NULL;
+  double triadesAberta = 0, triadesFechadas = 0, triadesTotal = 0;
+  vert1 = g;
+
+  // Laços responsaveis pela combinação dois a dois dos vertices
+  while (vert1){
+    vert2 = vert1->proxVertice;
+    while (vert2) {
+
+      // Busca os vertices em comum entre vert1 e vert2, contalizando as triades
+      busca_vertice_comum(vert1, vert2, &triadesAberta, &triadesFechadas);
+      vert2 = vert2->proxVertice;
+    }
+    vert1 = vert1->proxVertice;
+  }
+
+  triadesTotal = triadesAberta + triadesFechadas;
+
+  // Para nao existir divisão por zero
+  if ((int)triadesTotal == 0){
+    return 0;
+  }
+  // printf("triadesFechadas %lg - triadesAberta %lg\n", triadesFechadas, triadesAberta);
+  return triadesFechadas / triadesTotal;
+}
+
+// Insere o vert2Linha como adjacente ao vert1Linha
+void cria_vizinho (grafo cabeca, char *vert1Linha, char *vert2Linha){
+  grafo aux = cabeca;
   verticeP auxV = NULL;
 
   while (aux){
@@ -66,10 +120,9 @@ void cria_vizinho (grafoP cabeca, char *vert1Linha, char *vert2Linha){
   }
 }
 
-void printa_grafo (grafoP g){
-  grafoP aux = g;
+void printa_grafo (grafo g){
+  grafo aux = g;
   verticeP auxV = NULL;
-
   while (aux){
     printf("%s -> ", aux->nomeVert );
     auxV = aux->verticeAdj;
@@ -84,9 +137,8 @@ void printa_grafo (grafoP g){
 }
 
 
-int busca_nomeVert_no_grafo (grafoP g, char * vert){
-  grafoP atual = g;
-
+int busca_nomeVert_no_grafo (grafo g, char * vert){
+  grafo atual = g;
   while (atual){
     if (!strcmp (atual->nomeVert, vert)){
       return 1;
@@ -114,7 +166,9 @@ void processa_linha (char *linha,char *vert1,char *vert2){
 }
 
 verticeP aloca_vertice (void){
+  // Aloca espaço em memoria para a estrutura vertice
   verticeP v = (verticeP) malloc( sizeof(VerticeS) );
+  // Caso sucesso, inicializa a estrutura
   if (v){
     v->proximo = NULL;
     strcpy (v->nomeVert, "\0");
@@ -122,8 +176,10 @@ verticeP aloca_vertice (void){
   return v;
 }
 
-grafoP aloca_grafo (void){
-  grafoP g = (grafoP) malloc( sizeof(GrafoS) );
+grafo aloca_grafo (void){
+  // Aloca espaço em memoria para a estrutura grafo
+  grafo g = (grafo) malloc( sizeof(GrafoS) );
+  // Caso sucesso, inicializa a estrutura
   if (g){
     g->verticeAdj = NULL;
     g->proxVertice = NULL;
@@ -132,9 +188,8 @@ grafoP aloca_grafo (void){
   return g;
 }
 
-int destroi_grafo(grafoP g){
-  grafoP lixoG = g, atualG = g;
-
+int destroi_grafo(grafo g){
+  grafo lixoG = g, atualG = g;
   verticeP lixoV = NULL, atualV = NULL;
   while (atualG){
     atualV = atualG->verticeAdj;
@@ -147,10 +202,15 @@ int destroi_grafo(grafoP g){
     atualG = atualG->proxVertice;
     free(lixoG);
   }
+  if (g){
+    return 0;
+  }
   return 1;
 }
 
-void busca_vertice_comum (grafoP g1, grafoP g2, double * triadesAberta, double * triadesFechadas){
+// Passado dois vertices g1 e g2 , procurasse um vertice adjacente aos dois, caso exista obtem-se uma
+// triade aberta, se ainda g1 e g2 forem vizinhos obtem-se uma fechada
+void busca_vertice_comum (grafo g1, grafo g2, double * triadesAberta, double * triadesFechadas){
   verticeP vert1 , vert2;
   vert1 = g1->verticeAdj;
   vert2 = g2->verticeAdj;
@@ -170,7 +230,7 @@ void busca_vertice_comum (grafoP g1, grafoP g2, double * triadesAberta, double *
   }
 }
 
-int verifica_vizinho (grafoP vert1, char * nomeVert){
+int verifica_vizinho (grafo vert1, char * nomeVert){
   verticeP aux = vert1->verticeAdj;
   while (aux){
     if (!strcmp(aux->nomeVert,nomeVert)) return 1;
@@ -179,25 +239,6 @@ int verifica_vizinho (grafoP vert1, char * nomeVert){
   return 0;
 }
 
-double coeficiente_agrupamento_grafo(grafoP g){
-  grafoP vert1 = NULL, vert2 = NULL;
-  double triadesAberta = 0, triadesFechadas = 0, triadesTotal = 0;
-  vert1 = g;
-  while (vert1){
-    vert2 = vert1->proxVertice;
-    while (vert2) {
-      busca_vertice_comum(vert1, vert2, &triadesAberta, &triadesFechadas);
-      vert2 = vert2->proxVertice;
-    }
-    vert1 = vert1->proxVertice;
-  }
 
-  triadesTotal = triadesAberta + triadesFechadas;
-  if ((int)triadesTotal == 0){
-    return 0;
-  }
-  // printf("triadesFechadas %lg - triadesAberta %lg\n", triadesFechadas, triadesAberta);
-  return triadesFechadas / triadesTotal;
-}
 
 // grafo escreve_grafo(FILE *output, grafo g);
